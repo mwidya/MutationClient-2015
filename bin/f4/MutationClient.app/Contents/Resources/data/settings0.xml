@@ -1,0 +1,12 @@
+<settings>
+    <width>860.000000000</width>
+    <height>340.000000000</height>
+    <syphon_name>f0</syphon_name>
+    <markerId>691.000000000</markerId>
+    <markerX>20.000000000</markerX>
+    <markerY>20.000000000</markerY>
+    <markerWidth>140.000000000</markerWidth>
+    <markerHeight>140.000000000</markerHeight>
+    <oscPort>6000</oscPort>
+    <orientation>2</orientation>
+</settings>
