@@ -55,6 +55,8 @@ public:
     
     ofxTCPClient tcpClient;
     int connectTime;
+    bool tcpConnected;
+    string tcpServerIp;
     
     float lightWest_orientationX;
     float lightWest_orientationY;

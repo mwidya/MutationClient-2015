@@ -53,6 +53,16 @@ void ofApp::setLightOri(ofLight *light, ofVec3f rot){
 //--------------------------------------------------------------
 void ofApp::setup(){
     
+//    bool local = false;
+//    
+//    if (local) {
+//        tcpServerIp = "localhost";
+//    }else{
+//        tcpServerIp = "10.0.0.5";
+//    }
+//    
+//    tcpConnected = tcpClient.setup(tcpServerIp, PORT);
+    
     ofSetDataPathRoot("../Resources/data/");
     
     markerOn = false;
@@ -136,12 +146,10 @@ void ofApp::update(){
                     switch (orientation) {
                         case FLOOR:
                             lightPosition = ofVec3f(planePosition.x-m.getArgAsFloat(2), -(m.getArgAsFloat(0)-planePosition.x)+planePosition.y, -(m.getArgAsFloat(1)-planePosition.y));
-                            
                             lightOrientation = ofVec3f(lightFloor_orientationX + m.getArgAsFloat(10), lightFloor_orientationY + m.getArgAsFloat(11), lightFloor_orientationZ + m.getArgAsFloat(12));
                             break;
                         case EAST:
                             lightPosition = ofVec3f(planePosition.x-m.getArgAsFloat(2), -(m.getArgAsFloat(1))+planePosition.y*2, m.getArgAsFloat(0)-planePosition.x);
-                            
                             lightOrientation = ofVec3f(lightEast_orientationX + m.getArgAsFloat(10), lightEast_orientationY + m.getArgAsFloat(11), lightEast_orientationZ + m.getArgAsFloat(12));
                             break;
                         case WEST:
@@ -150,7 +158,6 @@ void ofApp::update(){
                             }else{
                                 lightPosition = ofVec3f(planePosition.x+m.getArgAsFloat(2), -(m.getArgAsFloat(1))+planePosition.y*2, -(m.getArgAsFloat(0)-planePosition.x));
                             }
-                            
                             lightOrientation = ofVec3f(lightWest_orientationX + m.getArgAsFloat(10), lightWest_orientationY + m.getArgAsFloat(11), lightWest_orientationZ + m.getArgAsFloat(12));
                             break;
                             
@@ -185,15 +192,22 @@ void ofApp::update(){
         }
     }
     
-    if(!tcpClient.isConnected()) {
-        //if we are not connected lets try and reconnect every 5 seconds
-        long deltaTime = ofGetElapsedTimeMillis() - connectTime;
-        if( deltaTime > 3000 ){
-            ofLog(OF_LOG_WARNING, "trying to connect to tcp");
-            tcpClient.setup(SERVER_TCP_IP, 12333);
-            connectTime = ofGetElapsedTimeMillis();
-        }
-    }
+//    if(tcpConnected)
+//    {
+//        
+//    }else
+//    {
+//        if(!tcpClient.isConnected()) {
+//            //if we are not connected lets try and reconnect every 5 seconds
+//            long deltaTime = ofGetElapsedTimeMillis() - connectTime;
+//            if( deltaTime > 3000 ){
+//                ofLog(OF_LOG_WARNING, "trying to connect to tcp");
+//                tcpConnected = tcpClient.setup(tcpServerIp, PORT);
+//                connectTime = ofGetElapsedTimeMillis();
+//            }
+//        }
+//    }
+    
 }
 
 void ofApp::draw(){
@@ -242,16 +256,23 @@ void ofApp::draw(){
     int linePitch = 20;
     
     for (int i = 0; i<lights.size(); i++) {
-        ofDrawBitmapString("ID: "+ofToString(lights[i]->mutLightID)+" | Pos: " + ofToString(lights[i]->getPosition().x)+", "+ofToString(lights[i]->getPosition().y)+", "+ofToString(lights[i]->getPosition().z) +
+        ofDrawBitmapString("ID: "+ofToString(lights[i]->mutLightID)+
                            " | RGB: " + ofToString(lights[i]->getDiffuseColor().r)+", "+ofToString(lights[i]->getDiffuseColor().g)+", "+ofToString(lights[i]->getDiffuseColor().b) +
-                           " | Orientation: " + ofToString(lights[i]->getOrientationEuler().x)+", "+ofToString(lights[i]->getOrientationEuler().y)+", "+ofToString(lights[i]->getOrientationEuler().z),  10, height-(linePitch*(4+i)));
+                           " | Pos: " + ofToString(lights[i]->getPosition().x)+", "+ofToString(lights[i]->getPosition().y)+", "+ofToString(lights[i]->getPosition().z) +
+                           " | Orientation: " + ofToString(lights[i]->getOrientationEuler().x)+", "+ofToString(lights[i]->getOrientationEuler().y)+", "+ofToString(lights[i]->getOrientationEuler().z),  10, height-(linePitch*(5+i)));
     }
-    ofDrawBitmapString("Plane Pos: " + ofToString(plane.getPosition().x)+", "+ofToString(plane.getPosition().y)+", "+ofToString(plane.getPosition().z),  10, height-(linePitch*3));
-    ofDrawBitmapString("Syphon Server: " + syphonName + " | Orientation: " + ofToString(orientation) +" | OSC Port: "+ofToString(oscPort), 10, height-(linePitch*2));
-    string tcpString = "";
+    ofDrawBitmapString("Plane Pos: " + ofToString(plane.getPosition().x)+", "+ofToString(plane.getPosition().y)+", "+ofToString(plane.getPosition().z),  10, height-(linePitch*4));
+    ofDrawBitmapString("Syphon Server: " + syphonName + " | Orientation: " + ofToString(orientation) +" | OSC Port: "+ofToString(oscPort), 10, height-(linePitch*3));
     
-    ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate()), 10, height-linePitch);
-    ofDrawBitmapString(tcpString, width-470, height-linePitch);
+    ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate()), 10, height-(linePitch*2));
+//    if (tcpClient.isConnected())
+//    {
+//        ofDrawBitmapString("TCP is connected to IP " + ofToString(tcpServerIp) + " on port " + ofToString(PORT) , 10, height-linePitch);
+//    }
+//    else
+//    {
+//        ofDrawBitmapString("TCP is NOT connected to IP " + ofToString(tcpServerIp) + " on port " + ofToString(PORT) , 10, height-linePitch);
+//    }
 }
 
 void ofApp::mousePressed(int x, int y, int button){
