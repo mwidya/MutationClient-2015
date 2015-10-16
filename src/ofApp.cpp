@@ -1,6 +1,8 @@
 #include "ofApp.h"
 #include "constants.h"
 
+#define TEST_ON true
+
 void ofApp::writeSettings(){
     
     for (int i = 0; i<10; i++) {
@@ -53,19 +55,23 @@ void ofApp::setLightOri(ofLight *light, ofVec3f rot){
 //--------------------------------------------------------------
 void ofApp::setup(){
     
-//    bool local = false;
-//    
-//    if (local) {
-//        tcpServerIp = "localhost";
-//    }else{
-//        tcpServerIp = "10.0.0.5";
-//    }
-//    
-//    tcpConnected = tcpClient.setup(tcpServerIp, PORT);
+    if (TEST_ON) {
+        tcpServerIp = "localhost";
+        tcpConnected = tcpClient.setup(tcpServerIp, 12333);
+        tcpClient.setMessageDelimiter("\n");
+    }
+    
     
     ofSetDataPathRoot("../Resources/data/");
     
-    markerOn = false;
+    if (TEST_ON) {
+        markerOn = false;
+        infoOn = false;
+    }else
+    {
+        markerOn = false;
+        infoOn = true;
+    }
     
     writeSettings();
     readSettings();
@@ -190,23 +196,27 @@ void ofApp::update(){
             markerOn = (bool)(m.getArgAsInt32(0));
             cout << "markerOn = " << markerOn << endl;
         }
+        if(m.getAddress() == "/info/on"){
+            infoOn = (bool)(m.getArgAsInt32(0));
+            cout << "infoOn = " << infoOn << endl;
+        }
     }
     
-//    if(tcpConnected)
-//    {
-//        
-//    }else
-//    {
-//        if(!tcpClient.isConnected()) {
-//            //if we are not connected lets try and reconnect every 5 seconds
-//            long deltaTime = ofGetElapsedTimeMillis() - connectTime;
-//            if( deltaTime > 3000 ){
-//                ofLog(OF_LOG_WARNING, "trying to connect to tcp");
-//                tcpConnected = tcpClient.setup(tcpServerIp, PORT);
-//                connectTime = ofGetElapsedTimeMillis();
-//            }
-//        }
-//    }
+    if (TEST_ON) {
+        if(tcpClient.isConnected())
+        {
+            
+        }else
+        {
+            //if we are not connected lets try and reconnect every 5 seconds
+            deltaTime = ofGetElapsedTimeMillis() - connectTime;
+            if( deltaTime > 3000 ){
+                ofLog(OF_LOG_WARNING, "trying to connect to tcp");
+                tcpConnected = tcpClient.setup(tcpServerIp, 12333);
+                connectTime = ofGetElapsedTimeMillis();
+            }
+        }
+    }
     
 }
 
@@ -253,42 +263,48 @@ void ofApp::draw(){
     
     syphonServer.publishScreen();
     
-    int linePitch = 20;
-    
-    for (int i = 0; i<lights.size(); i++) {
-        ofDrawBitmapString("ID: "+ofToString(lights[i]->mutLightID)+
-                           " | RGB: " + ofToString(lights[i]->getDiffuseColor().r)+", "+ofToString(lights[i]->getDiffuseColor().g)+", "+ofToString(lights[i]->getDiffuseColor().b) +
-                           " | Pos: " + ofToString(lights[i]->getPosition().x)+", "+ofToString(lights[i]->getPosition().y)+", "+ofToString(lights[i]->getPosition().z) +
-                           " | Orientation: " + ofToString(lights[i]->getOrientationEuler().x)+", "+ofToString(lights[i]->getOrientationEuler().y)+", "+ofToString(lights[i]->getOrientationEuler().z),  10, height-(linePitch*(5+i)));
+    if (infoOn) {
+        int linePitch = 20;
+        
+        for (int i = 0; i<lights.size(); i++) {
+            ofDrawBitmapString("ID: "+ofToString(lights[i]->mutLightID)+
+                               " | RGB: " + ofToString(lights[i]->getDiffuseColor().r)+", "+ofToString(lights[i]->getDiffuseColor().g)+", "+ofToString(lights[i]->getDiffuseColor().b) +
+                               " | Pos: " + ofToString(lights[i]->getPosition().x)+", "+ofToString(lights[i]->getPosition().y)+", "+ofToString(lights[i]->getPosition().z) +
+                               " | Orientation: " + ofToString(lights[i]->getOrientationEuler().x)+", "+ofToString(lights[i]->getOrientationEuler().y)+", "+ofToString(lights[i]->getOrientationEuler().z),  10, height-(linePitch*(5+i)));
+        }
+        ofDrawBitmapString("Plane Pos: " + ofToString(plane.getPosition().x)+", "+ofToString(plane.getPosition().y)+", "+ofToString(plane.getPosition().z),  10, height-(linePitch*4));
+        ofDrawBitmapString("Syphon Server: " + syphonName + " | Orientation: " + ofToString(orientation) +" | OSC Port: "+ofToString(oscPort), 10, height-(linePitch*3));
+        
+        ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate()), 10, height-(linePitch*2));
+        if (TEST_ON) {
+            if (tcpClient.isConnected())
+            {
+                ofDrawBitmapString("TCP is connected to IP " + ofToString(tcpServerIp) + " on port " + ofToString(PORT) , 10, height-linePitch);
+            }
+            else
+            {
+                ofDrawBitmapString("TCP is NOT connected to IP " + ofToString(tcpServerIp) + " on port " + ofToString(PORT) , 10, height-linePitch);
+            }
+        }
     }
-    ofDrawBitmapString("Plane Pos: " + ofToString(plane.getPosition().x)+", "+ofToString(plane.getPosition().y)+", "+ofToString(plane.getPosition().z),  10, height-(linePitch*4));
-    ofDrawBitmapString("Syphon Server: " + syphonName + " | Orientation: " + ofToString(orientation) +" | OSC Port: "+ofToString(oscPort), 10, height-(linePitch*3));
-    
-    ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate()), 10, height-(linePitch*2));
-//    if (tcpClient.isConnected())
-//    {
-//        ofDrawBitmapString("TCP is connected to IP " + ofToString(tcpServerIp) + " on port " + ofToString(PORT) , 10, height-linePitch);
-//    }
-//    else
-//    {
-//        ofDrawBitmapString("TCP is NOT connected to IP " + ofToString(tcpServerIp) + " on port " + ofToString(PORT) , 10, height-linePitch);
-//    }
 }
 
 void ofApp::mousePressed(int x, int y, int button){
-    ofVec2f pc = ofVec2f(x, y);
-    Json::Value root;
-    root["x"] = pc.x / width;
-    root["y"] = pc.y / height;
-    root["id"] = markerId;
-    root["event"] = "press";
-    //    ofLog(OF_LOG_WARNING, "hit " + ofToString(markerId) + " " + ofToString(pc));
-    Json::FastWriter jwrite;
-    ofLog(OF_LOG_NOTICE, "pc.x = " + ofToString(pc.x));
-    ofLog(OF_LOG_NOTICE, "pc.y = " + ofToString(pc.y));
-    ofLog(OF_LOG_NOTICE, "width = " + ofToString(pc.x / width));
-    ofLog(OF_LOG_NOTICE, "height = " + ofToString(pc.y / height));
-    ofLog(OF_LOG_WARNING, jwrite.write(root));
-    tcpClient.sendRaw(jwrite.write(root));
+    if (TEST_ON) {
+        ofVec2f pc = ofVec2f(x, y);
+        Json::Value root;
+        root["x"] = pc.x / width;
+        root["y"] = pc.y / height;
+        root["id"] = markerId;
+        root["event"] = "press";
+        //    ofLog(OF_LOG_WARNING, "hit " + ofToString(markerId) + " " + ofToString(pc));
+        Json::FastWriter jwrite;
+        ofLog(OF_LOG_NOTICE, "pc.x = " + ofToString(pc.x));
+        ofLog(OF_LOG_NOTICE, "pc.y = " + ofToString(pc.y));
+        ofLog(OF_LOG_NOTICE, "width = " + ofToString(pc.x / width));
+        ofLog(OF_LOG_NOTICE, "height = " + ofToString(pc.y / height));
+        ofLog(OF_LOG_WARNING, jwrite.write(root));
+        tcpClient.sendRaw(jwrite.write(root));
+    }
 }
 

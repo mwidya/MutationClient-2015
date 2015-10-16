@@ -52,11 +52,13 @@ public:
     ofVec3f lightOrientation;
     
     bool markerOn;
+    bool infoOn;
     
     ofxTCPClient tcpClient;
     int connectTime;
     bool tcpConnected;
     string tcpServerIp;
+    int deltaTime;
     
     float lightWest_orientationX;
     float lightWest_orientationY;
