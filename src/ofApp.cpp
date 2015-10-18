@@ -1,7 +1,7 @@
 #include "ofApp.h"
 #include "constants.h"
 
-#define TEST_ON true
+#define TEST_ON false
 
 void ofApp::writeSettings(){
     
